@@ -8,6 +8,15 @@ import zipfile
 
 
 RELEASE_FILES = frozenset("""
+.gitattributes
+h3_background_bridge/__init__.py
+h3_background_bridge/nodes.py
+h3_background_bridge/adapter-required-sha256.json
+workflows/H3_A2_API_ZImage_BackgroundCache_INTEGRATED.json
+docs/RH-INTEGRATED-INSTALL.md
+docs/INTEGRATED-WORKFLOW-NODES.json
+docs/INTEGRATION-VALIDATION.md
+tests/test_integrated_bridge.py
 .gitignore
 LICENSE
 README.md

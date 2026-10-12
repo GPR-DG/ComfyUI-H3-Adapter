@@ -1,6 +1,11 @@
 {
-  "version": "0.1.5",
+  "version": "0.1.6",
   "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 568,
+      "sha256": "e57a46da4878e00cfd732bb320ea5c3aa966730748a9fc424db733924dfbce48"
+    },
     {
       "path": ".gitignore",
       "bytes": 457,
@@ -8,8 +13,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 2192,
-      "sha256": "77008a92f66b06e99a006d5d2319c14d98d22ba4d5ea9b5104c87831e2508d3c"
+      "bytes": 2846,
+      "sha256": "f747ff26633a608da6e1ad1866d22462a4b60b2653e7a782c35c1e4a8dfb45cd"
     },
     {
       "path": "FINAL_AUDIT_REPORT.md",
@@ -23,8 +28,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19402,
-      "sha256": "5786994f61169b2529d4425edba0d962427825a1d5dd5d65fc452bb0a498d4d4"
+      "bytes": 20253,
+      "sha256": "3c53f2d01631a6959579c4e433c0e9361ed486c50cab4f99d939105ee589d459"
     },
     {
       "path": "RELEASE_CHECKLIST.md",
@@ -38,8 +43,8 @@
     },
     {
       "path": "__init__.py",
-      "bytes": 419,
-      "sha256": "389fcf1a6d5f0d5226817d609ceddedc3d053c234ed964a448ddc8c100da629e"
+      "bytes": 996,
+      "sha256": "08e0a3ebb67a47c5e49f2e640df2619d8fbc1cda186ca77426f241f94b97fd73"
     },
     {
       "path": "config/protocol-variants.example.json",
@@ -112,6 +117,16 @@
       "sha256": "97c5c49889634e782afa3af57eddeca5ac33e2ca141cbaa9cff15b07e39a6d3c"
     },
     {
+      "path": "docs/INTEGRATED-WORKFLOW-NODES.json",
+      "bytes": 2041,
+      "sha256": "7ee5159dd2be59593c2106c1fc29fe3bea113ee9e3538b2cfc4a417b40389dd1"
+    },
+    {
+      "path": "docs/INTEGRATION-VALIDATION.md",
+      "bytes": 4718,
+      "sha256": "70b3854d336354d10d67366b5cf3e399f238f277e05b582017d96f264b2568c3"
+    },
+    {
       "path": "docs/PROTOCOLS.md",
       "bytes": 13829,
       "sha256": "7bffac943ba9b76e8b7fdb1d040379cca8850e730661fa2375252290dfb9a458"
@@ -120,6 +135,11 @@
       "path": "docs/REVIEW.md",
       "bytes": 6508,
       "sha256": "dee7868269c7dff108bd9f26983a23ff2767a8e08c71db3adc6af135e68e243d"
+    },
+    {
+      "path": "docs/RH-INTEGRATED-INSTALL.md",
+      "bytes": 7938,
+      "sha256": "7cb115f4f3a05b53d25497cda1906df0a1b65c235195fa574e27e066fbd3adfc"
     },
     {
       "path": "docs/RUNNINGHUB.md",
@@ -158,33 +178,48 @@
     },
     {
       "path": "h3_adapter/__init__.py",
-      "bytes": 2,
-      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
     },
     {
       "path": "h3_adapter/config.py",
-      "bytes": 18277,
-      "sha256": "d45b37e9eeddb04adf11da1d97ebc990cf1ad2e867263715cc772956a44e78ab"
+      "bytes": 17963,
+      "sha256": "364b04f648c9c0c70e86c4447623f19c5902c147d8efac5fe36e0a3dbcab21b4"
     },
     {
       "path": "h3_adapter/engine.py",
-      "bytes": 16569,
-      "sha256": "d06f8bf47fa3bdaccf3e75422a1dd232ffb7e34eadb1de2573ded3170011f94a"
+      "bytes": 16296,
+      "sha256": "fbf9fdd00ecb80887b65d274469f336cfd3e445d0b909a0a585236a62f0e4b69"
     },
     {
       "path": "h3_adapter/ledger.py",
-      "bytes": 5961,
-      "sha256": "bcbf33b2b451838e535f9de9d9d5bec3390175e868d521026b790db8151dfec1"
+      "bytes": 5856,
+      "sha256": "a839e8037a967560a0c72d32887f8b235b039faa7f8a59d1677fa29aa5ce7556"
     },
     {
       "path": "h3_adapter/protocol.py",
-      "bytes": 15787,
-      "sha256": "ab49ad14a98735e49274e43530ffa20bd99095bbe0cd7a9db4bf5241409ffce2"
+      "bytes": 15508,
+      "sha256": "61956b22c394870be8866ad0868144c76903f1a831b99bb498296887c38f0ce0"
     },
     {
       "path": "h3_adapter/routes.py",
-      "bytes": 4964,
-      "sha256": "b9b767c7fe2f866794313b44d4351f19a5869d77f637cbe6a140a95892578aa5"
+      "bytes": 4870,
+      "sha256": "c57d4ff308ef1d4a2232d193122751c665c54dc92cb5c9c52b1e4e8bb9e15043"
+    },
+    {
+      "path": "h3_background_bridge/__init__.py",
+      "bytes": 67,
+      "sha256": "cebf06c8c0fd096d61ec31ae4a498671ff5f98d1cabdfd06d5d7df5d30f6a72c"
+    },
+    {
+      "path": "h3_background_bridge/adapter-required-sha256.json",
+      "bytes": 557,
+      "sha256": "64a559d503663e45fba2f31425b7c4b31a0286e2712f6290b15b760c176560ee"
+    },
+    {
+      "path": "h3_background_bridge/nodes.py",
+      "bytes": 15265,
+      "sha256": "d350241060daccd0e45478d98737b266b5814bee3bd015e7a6c56569fb625297"
     },
     {
       "path": "licenses/httpx-0-LICENSE.md",
@@ -198,13 +233,13 @@
     },
     {
       "path": "nodes.py",
-      "bytes": 4554,
-      "sha256": "eba649777c90f46fa637f2e38c41152c485df85d096749cad1663e2a49a4df32"
+      "bytes": 4553,
+      "sha256": "af3f9bf18242edaf4dee533493229d82af25030e5beaea0254fd44f1f5ba1694"
     },
     {
       "path": "pyproject.toml",
-      "bytes": 346,
-      "sha256": "511d23293523c6fc76d662f4234899be3f3e13f63a7b6a446c1663db9c321634"
+      "bytes": 353,
+      "sha256": "32278f65725ca7f89f869401055396548128a0f1d9eb59e5342f535f59c43ccc"
     },
     {
       "path": "requirements-dev.txt",
@@ -213,13 +248,13 @@
     },
     {
       "path": "requirements.txt",
-      "bytes": 39,
-      "sha256": "4ba550b78a751972e60e8e301d4ea0fa8f3c72426341aa64553586b888806a59"
+      "bytes": 52,
+      "sha256": "fbd6c9acb99bbd358b13762c92708e70489551129862b6e07f49eb98d4d566be"
     },
     {
       "path": "scripts/build_release.py",
-      "bytes": 5135,
-      "sha256": "2dbb4380a33130f5ce6a2c2fa42082b90bb84c68df9f176cb7bea9e8a235a50a"
+      "bytes": 5316,
+      "sha256": "2827b8a12caf5a8a75ab92de249b354fccba837d1026af9ca4069acac2e07e56"
     },
     {
       "path": "scripts/independent_http_smoke.py",
@@ -233,8 +268,8 @@
     },
     {
       "path": "scripts/verify_comfyui.py",
-      "bytes": 4345,
-      "sha256": "11374ccfc63432c8bb73b383dccb20eef88e3aa6947db9f83dcbd692d101ca7a"
+      "bytes": 4774,
+      "sha256": "7de363dfcc8ed304032ec744cf91a1fe9a12c35fe48943c973892032b551c409"
     },
     {
       "path": "tests/mock_api.py",
@@ -285,6 +320,11 @@
       "path": "tests/test_frontend_review.mjs",
       "bytes": 13584,
       "sha256": "3df49c7a39ea2082a34c1d3ab08bae5e999cd30e14fbd82ef7eba7cc072b479e"
+    },
+    {
+      "path": "tests/test_integrated_bridge.py",
+      "bytes": 8155,
+      "sha256": "80891eb752ef653e33cadd95d6f74670076297ef963cb50fc38002ac6eeab89a"
     },
     {
       "path": "tests/test_ledger.py",
@@ -405,6 +445,11 @@
       "path": "web/h3_adapter.js",
       "bytes": 21026,
       "sha256": "5b29934ee18c49cefd71ee6fbfb42e9acee32a61384d7e9a862c8dbe97b80804"
+    },
+    {
+      "path": "workflows/H3_A2_API_ZImage_BackgroundCache_INTEGRATED.json",
+      "bytes": 232041,
+      "sha256": "43cdcddab0544aeddc454ba7a187c0bdbd18d4290d956db9945b667735105bee"
     }
   ],
   "privacy": "Exact release file allowlist; active provider settings replaced by disabled example",

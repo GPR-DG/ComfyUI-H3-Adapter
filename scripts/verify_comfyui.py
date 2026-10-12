@@ -35,6 +35,12 @@ from app.assets.manager import default_asset_manager
 server=PromptServer(loop, default_asset_manager())
 loaded=loop.run_until_complete(host_nodes.load_custom_node(str(root)))
 assert loaded is True
+expected_nodes={'H3ImageEdit','H3A2Recipe','H3A2BackgroundResolve',
+                'H3A2BackgroundWashClaim','H3A2APISource','H3A2APIGuard',
+                'H3A2PromptCapture','H3A2BackgroundFinish'}
+assert expected_nodes <= host_nodes.NODE_CLASS_MAPPINGS.keys()
+bridge=sys.modules[host_nodes.NODE_CLASS_MAPPINGS['H3A2Recipe'].__module__]
+assert bridge.adapter() is sys.modules[host_nodes.NODE_CLASS_MAPPINGS['H3ImageEdit'].__module__]
 cls=host_nodes.NODE_CLASS_MAPPINGS['H3ImageEdit']
 assert cls.RETURN_TYPES==('IMAGE','STRING','STRING')
 assert cls.INPUT_TYPES()['required']['image']==('IMAGE',)
@@ -77,5 +83,5 @@ with tempfile.TemporaryDirectory(dir=work) as folder, closing(MockAPI()) as peer
             assert len(saved['ui']['images'])==1 and len(preview['ui']['images'])==1
             results.append({'mask':mask is not None,'status':'success','cached_replay':True,'shape':list(tensor.shape),'host_save_preview':True})
         assert len(peer.calls(method='POST'))==2
-print(json.dumps({'official_host_import':True,'routes_registered':True,'cases':results,'edit_POSTs':2},indent=2))
+print(json.dumps({'official_host_import':True,'registered_nodes':sorted(expected_nodes),'bridge_hashes_verified':True,'routes_registered':True,'cases':results,'edit_POSTs':2},indent=2))
 loop.close()

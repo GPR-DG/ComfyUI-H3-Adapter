@@ -1,3 +1,11 @@
+# H3 API + A2 BackgroundBridge（单仓库集成）
+
+**当前集成候选 0.1.6，2026-10-12。** 原有 API、主备供应商、Base URL、Key、模型选择、请求账本及两个手动配置按钮完整保留。本仓库根包同时注册 H3ImageEdit 和全部七个 Bridge 节点。RH 技术人员从此仓库安装 API/Bridge 一个插件目录即可；既有 H3 Core、原工作流依赖与模型仍须安装。详见 [RH 单仓库安装说明](docs/RH-INTEGRATED-INSTALL.md)、[本次集成验证](docs/INTEGRATION-VALIDATION.md) 和 [121 节点 / 251 连线工作流](workflows/H3_A2_API_ZImage_BackgroundCache_INTEGRATED.json)。
+
+下文 0.1.5 测试数字是保留的历史记录。本次集成已重新测试；源码版本校验保留，六个源文件固定 LF 并按实际当前适配器重新生成哈希。Bridge Recipe 使用当前配置快照接口，API 输出宽高比不符仍拒绝。RH 云端、真实供应商与真实模型尚未验收，仍为开发测试候选。
+
+---
+
 # H3 通用外部图像编辑 API 适配器（阶段 1）
 
 **版本 0.1.5：开发测试候选，更新日期 2026-10-12。可以用于源码开发与免费 Mock 测试；稳定 Release：NO。** 当前结果见 [FINAL_AUDIT_REPORT.md](FINAL_AUDIT_REPORT.md)，调用关系见 [SOURCE_MAP.md](SOURCE_MAP.md)。本次只增量修复管理令牌错误处理、密钥保存竞态、配置成功提示和结果临时文件清理，保留既有供应商身份/代际/冷却与参数切换保护。

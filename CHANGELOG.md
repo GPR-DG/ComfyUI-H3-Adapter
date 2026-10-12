@@ -1,3 +1,11 @@
+## 0.1.6 — 2026-10-12
+
+- 根包统一注册现有 H3ImageEdit 和七个 A2 BackgroundBridge 节点，保留 WEB_DIRECTORY、路由、API 接口和前端原文件。
+- 纳入二次取证的宽高比 Guard；Recipe 与当前 ConfigStore 快照/凭据代际接口兼容，捕获凭据时验证同一配置版本。
+- 保留并重新生成六文件 SHA256 校验，LF 属性确保 Windows/Linux 字节一致；补充 NumPy 运行依赖。
+- 交付原样 nodes/links 的 121/251 融合图、RH 同仓库安装说明和节点类型清单；发布 allowlist 包含 Bridge 与工作流。
+- 验证范围和已知 API 限制见 docs/INTEGRATION-VALIDATION.md；未验证 RH 云端。
+
 # Changelog
 
 ## 0.1.5 — 开发测试候选增量更新（2026-10-12）
