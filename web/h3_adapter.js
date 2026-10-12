@@ -39,7 +39,8 @@ function dialog(title) {
     panel.setAttribute("aria-label", title);
     Object.assign(panel.style, { width: "min(780px, 92vw)", maxHeight: "90vh", overflow: "auto", padding: "20px", background: "var(--comfy-menu-bg, #252525)", color: "var(--input-text, #ddd)", border: "1px solid #777", borderRadius: "8px" });
     const secrets = [];
-    const close = () => { for (const el of secrets) el.value = ""; overlay.remove(); };
+    let open = true;
+    const close = () => { open = false; for (const el of secrets) el.value = ""; overlay.remove(); };
     panel.onkeydown = (event) => { if (event.key === "Escape") close(); };
     overlay.onmousedown = (event) => { if (event.target === overlay) close(); };
     panel.append(element("h2", title));
@@ -52,7 +53,7 @@ function dialog(title) {
     const closeButton = button("关闭", panel, close);
     overlay.append(panel);
     document.body.append(overlay);
-    return { body, panel, overlay, closeButton, status, close, secrets };
+    return { body, panel, overlay, closeButton, status, close, secrets, isOpen: () => open };
 }
 function askToken() {
     const ui = dialog("H3 管理授权");
@@ -76,20 +77,35 @@ async function request(path, payload, retry = true) {
     const headers = { Accept: "application/json" };
     if (payload !== undefined) headers["Content-Type"] = "application/json";
     if (managementToken) headers["X-H3-Management-Token"] = managementToken;
-    const response = await api.fetchApi(path, {
-        method: payload === undefined ? "GET" : "POST",
-        headers,
-        ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
-    });
-    if ((response.status === 401 || response.status === 403) && retry) {
-        managementToken = "";
+    const requestToken = managementToken;
+    let response;
+    try {
+        response = await api.fetchApi(path, {
+            method: payload === undefined ? "GET" : "POST",
+            headers,
+            ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
+        });
+    } catch (err) {
+        if (managementToken === requestToken) managementToken = "";
+        throw err;
+    }
+    const denied = response.status === 401 || response.status === 403;
+    if (denied && managementToken === requestToken) managementToken = "";
+    if (denied && retry) {
         const token = await askToken();
         if (token) { managementToken = token; return request(path, payload, false); }
         throw new Error("管理授权取消；云端管理默认关闭。");
     }
+    const textResponse = response.clone?.();
     let data;
     try { data = await response.json(); }
-    catch { throw new Error("管理接口未返回 JSON（HTTP " + response.status + "）。"); }
+    catch {
+        if ((response.status === 401 || response.status === 403) && textResponse) {
+            const reason = (await textResponse.text()).trim().slice(0, 256);
+            if (reason) throw new Error(reason + "（HTTP " + response.status + "）。");
+        }
+        throw new Error("管理接口未返回 JSON（HTTP " + response.status + "）。");
+    }
     if (!response.ok) throw new Error(data.error || data.message || ("HTTP " + response.status));
     return data;
 }
@@ -201,11 +217,21 @@ async function openManager(node) {
                 }
                 data.config = clickedConfig;
                 data.revision = saved.revision;
-                fill(selected);
-                ui.status.textContent = "配置已保存。Key 不在配置中。";
+                let refreshError = "";
+                try { data.keys = (await request("/h3-adapter/config")).keys; }
+                catch (err) { refreshError = " Key 状态刷新失败：" + err.message + "；请重新读取配置。"; }
+                if (!ui.isOpen()) return;
+                let editWarning = "";
+                try { fill(selected); }
+                catch { editWarning = " 当前 JSON 编辑无效，尚未保存；请修正后再保存。"; }
+                ui.status.textContent = "配置已保存。Key 不在配置中。" + refreshError + editWarning;
             } catch (err) { ui.status.textContent = err.message; }
         });
-        button("保存密钥", ui.body, async () => {
+        let savingKey = false;
+        const saveKeyButton = button("保存密钥", ui.body, async () => {
+            if (savingKey) return;
+            savingKey = true;
+            saveKeyButton.disabled = true;
             const providerId = selected;
             const secret = key.value;
             key.value = "";
@@ -216,9 +242,11 @@ async function openManager(node) {
                 if (!p || id.value.trim() !== p.id || base.value.trim() !== p.base_url || env.value.trim() !== (p.key_env || "")) throw new Error("供应商身份表单尚未应用；请先应用到 JSON 并保存配置，再保存密钥。");
                 if (JSON.stringify(config) !== JSON.stringify(data.config)) throw new Error("配置 JSON 尚未保存；请先保存配置，再保存密钥。");
                 const saved = await request("/h3-adapter/key", { provider_id: providerId, key: secret, expected_revision: data.revision });
+                if (!ui.isOpen()) return;
                 data.keys[providerId] = saved.has_key;
                 if (selected === providerId) ui.status.textContent = secret ? "密钥已保存服务器；输入框已清空。" : "已删除服务器文件中的密钥；环境变量需服务器端另行删除。";
-            } catch (err) { if (selected === providerId) ui.status.textContent = err.message; }
+            } catch (err) { if (ui.isOpen() && selected === providerId) ui.status.textContent = err.message; }
+            finally { savingKey = false; saveKeyButton.disabled = false; }
         });
         button("本节点使用所选供应商", ui.body, () => {
             if (widget(node, "provider")?.value !== selector.value) setWidget(node, "parameters", "{}");

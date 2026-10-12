@@ -1,3 +1,27 @@
+# 2026-10-12 开发测试候选：当前验证
+
+以下当前摘要优先于后面的历史记录。Python discovered=174，run=171，pass=171，failure/error/skip=0；按既有约束排除报告列出的 3 项 Git 写入夹具。原断言未改，新增授权回归用生产 aiohttp 路由验证无效/正确 token。
+
+运行 6 套前端检查：
+
+```powershell
+$files = @('test_frontend.mjs', 'test_frontend_review.mjs', 'test_round3_frontend.mjs', 'test_round4_frontend.mjs', 'test_final_frontend.mjs', 'test_development_frontend.mjs')
+foreach ($name in $files) {
+    node "tests/$name"
+    if ($LASTEXITCODE -ne 0) { throw "Failed: $name" }
+}
+```
+
+新授权回归可在插件根执行 `python -B -m unittest discover -s tests -p test_development_upload.py -v`。全套 Python 的本轮外部 runner 在 discover 后逐项排除 Git 写入夹具；直接运行后面的历史全套命令会执行这些夹具，结果范围不等同于本轮。所有合成凭据不可用于真实收费服务。
+
+当前独立验证包括 27 类真实 loopback TCP Mock、生产路由/实际 Chromium 的 9 组管理探针、Windows 只读替换失败后临时清理和无新 POST 恢复。实际官方 ComfyUI CPU 宿主中导入、路由、IMAGE/MASK、成功缓存与 SaveImage/PreviewImage 消费通过。五类无图状态仍触发实际 PromptExecutor 的消费者 IndexError，不能把宿主探针进程退出 0 解释为全部工作流通过。HTTP gzip/deflate/多重编码在 64 KiB cap 之前先生成 4 MiB 块；没有生产 OOM 证明。
+
+外部独立探针与含本机路径的原始日志留在本地交付，不随源码公开。真实供应商、账单、RH、目标文件系统和跨版本兼容未验收。Stable Release：NO，详见根目录 FINAL_AUDIT_REPORT.md。
+
+---
+
+# 以下为历史测试记录（不是本次源码认证）
+
 > 2026-10-11 本次最终独立验证以根目录 FINAL_AUDIT_REPORT.md 为准；下方旧计数为历史记录。当前 173 项 Python（无 skip）、5 套 JS、27 类 TCP Mock、官方 ComfyUI CPU 宿主均纳入验收。未调用付费接口，未验证 RH。一次 Windows WinError 5 失败保留为部署存储风险，成功重跑不消除该记录。
 
 > 0.1.5 当前验收：真实 Torch 与实际 CPU ComfyUI 宿主、Chrome 管理界面已通过免费 Mock。以下旧版本计数/skip 是历史记录；最新详细范围见 AUDIT-ROUND5-FOLLOWUP.md，最终源码/ZIP 全套结果在交付证据 test-summary.json。新独立 HTTP 冒烟：在插件根运行 `python scripts/independent_http_smoke.py --source . --output ../work/independent-http.json`；其27类场景使用假Key和真实本机TCP，不读取商家Key。相同源/ZIP须分别执行。

@@ -56,6 +56,8 @@ scripts/verify_comfyui.py
 scripts/independent_http_smoke.py
 tests/mock_api.py
 tests/test_config.py
+tests/test_development_upload.py
+tests/test_development_frontend.mjs
 tests/test_final_identity.py
 tests/test_final_frontend.mjs
 tests/test_followup_contracts.py

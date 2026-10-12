@@ -22,7 +22,11 @@ def register_routes(routes, store):
                 raise web.HTTPForbidden(text='Invalid origin') from None
         token = os.environ.get('H3_ADAPTER_MANAGEMENT_TOKEN', '')
         if token:
-            if not hmac.compare_digest(request.headers.get('X-H3-Management-Token', ''), token):
+            try:
+                supplied = request.headers.get('X-H3-Management-Token', '').encode('utf-8')
+            except UnicodeEncodeError:
+                raise web.HTTPUnauthorized(text='Administrator token required') from None
+            if not hmac.compare_digest(supplied, token.encode('utf-8')):
                 raise web.HTTPUnauthorized(text='Administrator token required')
         elif (request.remote not in ('127.0.0.1', '::1') or urlsplit('http://' + request.host).hostname not in ('localhost', '127.0.0.1', '::1') or request.headers.get('X-Forwarded-For') or request.headers.get('Forwarded')):
             raise web.HTTPForbidden(text='Remote management requires a server administrator token')

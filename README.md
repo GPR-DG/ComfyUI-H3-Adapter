@@ -1,10 +1,13 @@
 # H3 通用外部图像编辑 API 适配器（阶段 1）
 
-**版本 0.1.5，最终源码审计日期 2026-10-11。当前独立结论见 [FINAL_AUDIT_REPORT.md](FINAL_AUDIT_REPORT.md)，模块与调用关系见 [SOURCE_MAP.md](SOURCE_MAP.md)。修复供应商配置/凭据并发错配、删除重建后的环境 Key 恢复错配、旧身份冷却污染，以及切换后节点参数残留。历史审计仅保留作历史记录。**
+**版本 0.1.5：开发测试候选，更新日期 2026-10-12。可以用于源码开发与免费 Mock 测试；稳定 Release：NO。** 当前结果见 [FINAL_AUDIT_REPORT.md](FINAL_AUDIT_REPORT.md)，调用关系见 [SOURCE_MAP.md](SOURCE_MAP.md)。本次只增量修复管理令牌错误处理、密钥保存竞态、配置成功提示和结果临时文件清理，保留既有供应商身份/代际/冷却与参数切换保护。
+
+**两个已知缺陷仍未修复：** HTTP 响应先由 HTTPX 解压，再检查大小，不能限制此前的解压分配；失败、未知、等待等状态返回零张 IMAGE，标准 SaveImage/PreviewImage 会触发 IndexError。失败输出传播尚未闭合，不能作为生产稳定版使用。
+
 
 一个独立 ComfyUI 自定义节点 `H3ImageEdit`。标准 `IMAGE` / 可选 `MASK` → 外部编辑 API → `IMAGE`；配置式主供应商 + 3 个备用，可继续增加。只改服务器配置即可换地址、Key、模型映射和主备；工作流使用稳定的逻辑别名 `background-edit`。不修改 H3 / Z-Image / Background Core。
 
-**已完成本地协议、真实 CPU PyTorch 和官方 ComfyUI 宿主验证；真实供应商、编辑质量、商业账单与 RH 云端仍未验证。** 完整免费验证包含 173 项 Python 测试、5 套 JS 测试、27 类真实 TCP Mock 场景及官方宿主的有/无 Mask、缓存重放、SaveImage/PreviewImage 消费。曾观察到一次 Windows 文件替换 WinError 5；保留失败证据，目标部署文件锁/ACL 行为仍需验收。测试结果及其范围以最终审计报告为准。
+**本轮验证：** Python 发现 174 项，执行 171 项，171 通过，0 失败/错误/跳过；按既有约束明确排除 3 项 Git 写入夹具。6 套 JS、27 类真实本地 TCP Mock 通过。实际 CPU PyTorch/ComfyUI 宿主导入、路由、有/无 MASK、成功缓存消费通过；失败输出到标准消费者的路径仍失败。真实供应商、收费、编辑质量和 RH 未验收。上述结果不表示生产验收通过。
 
 ## 1. 安装到自己的 ComfyUI
 

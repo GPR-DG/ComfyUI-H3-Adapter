@@ -251,8 +251,11 @@ class Engine:
                 name = f'{request_id}-{i}.image'
                 target = self.journal.directory / name
                 temp = target.with_name(target.name + '.' + uuid.uuid4().hex + '.tmp')
-                temp.write_bytes(normalized[-1])
-                temp.replace(target)
+                try:
+                    temp.write_bytes(normalized[-1])
+                    temp.replace(target)
+                finally:
+                    temp.unlink(missing_ok=True)
                 names.append(name)
             if not names:
                 return finish('awaiting_result', 'empty_result_no_resubmit')

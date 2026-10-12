@@ -1,3 +1,10 @@
+> 当前增量更新：2026-10-12，开发测试候选。原模块结构与数据流保持，以下补充优先于历史发布判断。
+>
+> routes.py：管理授权先校验 Origin/管理设置，再按 UTF-8 bytes 常量时间比较 token；非 ASCII 失败返回授权拒绝。config/key/models 仍经 ConfigStore/CAS，不公开 Key。
+> web/h3_adapter.js：request 清理本次坏 token；dialog 提供关闭状态；openManager 密钥写入串行，配置保存成功后更新 revision/刷新 keys 并保留未保存编辑警告。模型切换参数清理仍保留。
+> engine.py：下载/归一化结果 → 临时写入 → replace → finally 清理临时文件 → 原账本完成流程；写入失败仍保留 result_ready 与预算预留，后续恢复同任务。
+> 未变更 config.py、ledger.py、protocol.py、nodes.py；protocol 解压分配与 nodes 空 IMAGE 仍阻断稳定发布。新增 tests/test_development_upload.py 与 tests/test_development_frontend.mjs 进入原构建白名单。
+
 # SOURCE_MAP
 
 审计日期：2026-10-11。以下结论来自全部原始 Python/JS/MJS 源文件、配置、节点注册、测试与构建脚本的逐文件阅读；历史 AUDIT/日志只作对照，不作代码正确性证据。原始 41 个源文件（36 Python、5 JS/MJS，310047 字节），本次新增 3 个验证源文件。最终发行源码与文档逐文件哈希见 SOURCE-MANIFEST.json。

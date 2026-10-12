@@ -1,3 +1,64 @@
+# 本次增量复核：2026-10-12，开发测试候选
+
+此节是当前结论，后面的 2026-10-11 报告仅作为历史记录。基线 main：`3d5aa47a6d7528da8a6cc9004c590635f2de37db`。远端与本地基线逐文件核对；没有整库覆盖、改名、接口变更或调度重写。源码判定与实际探针结果共同构成本节证据，旧 PASS 不用于认证本次代码。
+
+## CONFIRMED 与本次修复
+
+| 标记 | 文件/可达条件 | 最小修复与验证 |
+|---|---|---|
+| IA04 | routes.py 直接 compare_digest(str,str)，非 ASCII token 可触发异常；前端 fetch 失败或第二次拒绝后留下坏缓存 | UTF-8 bytes 比较并拒绝无效编码；清除本次请求对应的坏缓存，保留拒绝信息。实际 aiohttp 与 Chromium 验证 Latin1、中文、正确/错误/缺失 ASCII 和后续重授权 |
+| IA05 | 同一管理窗口允许重叠密钥保存/删除，迟到回包可能覆盖新状态 | 保存按钮串行 guard、disabled/finally 与关闭窗口回包保护。真实路由先落盘再延迟回包；有/无环境 Key 的连续保存/删除均匹配服务端；原供应商切换回归保持通过 |
+| IA06 | 配置 POST 成功后，用户把编辑器改成无效 JSON，fill 错误覆盖保存成功 | 成功后保留 revision、刷新 Key 状态，分别提示刷新失败和未保存编辑错误。浏览器同时检查服务端落盘与原编辑文本 |
+| IA11 | 结果 temp.replace 失败后留下临时文件 | 写入/替换加 finally 清理；Windows 只读目标探针：旧目标保留、temp=0、任务 result_ready、预留费用 0.1；恢复 completed，总 POST=1 |
+
+## CONFIRMED：稳定发布阻断，尚未修改
+
+- IA01：protocol.py 的 iter_bytes 在 cap 检查前解压。新真实 TCP 探针中 65,536 bytes 上限下，gzip/deflate/多重编码先产生 4,194,304 bytes 解压块，随后 response_too_large。连接已释放。此前另一次 1 KiB/8 MiB 核对属于不同探针，不能混作本轮参数。未证明生产 OOM。
+- IA02：nodes.py 对失败、未知、等待、阻断和无供应商返回空 IMAGE。本轮实际官方 ComfyUI PromptExecutor 与 PyTorch 下，成功有/无 MASK 的 SaveImage/PreviewImage 可以消费；五类无图状态触发标准消费者 IndexError。成功路径通过不能代表失败路径通过。
+
+## REJECTED / 不适用于当前基线
+
+- IA09 候选的 REQUIRED_FILES 夹具变更：当前 builder 没有这个属性，不能移植不存在的接口。保留现有 RELEASE_FILES，只增加本次必要回归文件。
+- IA10 候选的 begin_task 夹具变更：当前 Journal 使用 begin，不存在 begin_task。没有证据需要该夹具修改。
+- “整份候选替换当前仓库即可保留保护”：源码反证；候选会丢失 health.identity 和参数切换清理，已拒绝整文件替换。
+- 本轮同一持久账本、相同 nonce 的 Mock 请求没有新增重复 POST 或预算突破；这不是对所有商家收费的证明。
+
+## 保留的现有保护
+
+锁内捕获配置 revision；credential_generation 隔离删除重建任务；连续身份 Key 轮换恢复；health.identity 冷却与旧表迁移；真正切换 provider/auto/model ID/alias 清空 parameters；选择不变保留参数。config.py、ledger.py、nodes.py、protocol.py 未修改，原身份/前端回归与宿主验证脚本均保留。
+
+## 本轮实际验证
+
+| 验证 | 当前合并版本结果与边界 |
+|---|---|
+| Python | discovered=174，run=171，pass=171，failure=0，error=0，skip=0，excluded=3；新增 1 项授权回归，原断言未改 |
+| JS | 5 套原有 suite + 1 套新 suite 全部退出 0；新增 4 类 token/编辑器/并发场景 |
+| 独立 HTTP Mock | 27 类真实 loopback TCP 场景通过：协议 payload、主备、未知不换家、重复、并发、预算、恢复和配置身份 |
+| Chromium/生产管理路由 | 9 组探针记录；令牌重授权、保存成功后无效编辑、有/无环境 Key 的串行保存/删除符合合同；中文 token 的浏览器 ByteString 拒绝如实保留 |
+| Windows 文件探针 | replace 失败后 temp=0，旧目标保留，恢复无重复提交；不是所有 ACL/外部锁环境验收 |
+| 实际 ComfyUI CPU 宿主 | 导入、注册、路由、IMAGE/MASK、成功缓存和消费者通过；五类无图失败状态在实际执行器里仍触发消费者 IndexError |
+| HTTP 解码/截止时间 | cap 之前的大块解码缺陷仍在；提交超时/断流保留 uncertain/费用，不重复 POST。截止时间存在小幅超时，不宣称硬实时 |
+
+明确排除既有 Git 写入夹具（未修改测试来掩盖排除）：
+
+- test_round4_release.PublicationTests.test_documented_source_initialization_creates_only_missing_config
+- test_round4_release.PublicationTests.test_git_add_does_not_track_credential_or_runtime_files
+- test_round5_release.ReleaseBoundaryTests.test_git_ignore_covers_nonstandard_config_backups
+
+独立宿主、浏览器与文件系统探针原始证据保留在本次本地交付，未把含私人路径的日志上传。新增可公开回归文件随源码发布；打包重新生成 manifest，并检查成员、CRC 与每个成员 hash。
+
+## 未验证风险与最终判断
+
+特殊 Linux 路径锁碰撞、数据库长锁等待、硬退出残留及所有目标文件系统环境未完成验收。真实供应商的接受/拒绝语义、收费、编辑质量、RH 部署和跨版本兼容仍未验收。费用是保守配置估计，不能视为商家账单。
+
+A：业务需求部分达到；多供应商、主备、去重和恢复的本地验证成立，生产闭环未完全达到。
+B：允许增量上传 GitHub 作为开发测试候选；上传操作后独立核对远端完整 SHA，执行结果在交付回复中报告。
+C：仍需修复 IA01/IA02 才能重新考虑稳定发布。Stable Release：NO；本轮不创建稳定标签或 Release。用户指定的 commit 标题含 stable，不代表稳定验收通过，commit 正文会明确 Development candidate; Stable Release NO。
+
+---
+
+# 以下为历史报告（2026-10-11，不代表当前发布结论）
+
 # FINAL_AUDIT_REPORT
 
 审计对象：ComfyUI-H3-Adapter 0.1.5。日期：2026-10-11，Asia/Shanghai。方法：独立逐文件取证、直接执行生产回调与网络捕获、先复现后最小修复；不根据历史报告、旧 PASS 或测试数量判断正确。

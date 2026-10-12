@@ -8,13 +8,13 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 1230,
-      "sha256": "6dd4b80393dbb4ec9abe55a1f14ee16c28a1a3ff22dd28943181480dcad8c1cb"
+      "bytes": 2192,
+      "sha256": "77008a92f66b06e99a006d5d2319c14d98d22ba4d5ea9b5104c87831e2508d3c"
     },
     {
       "path": "FINAL_AUDIT_REPORT.md",
-      "bytes": 11376,
-      "sha256": "360ca36d13e886785aa60ce4ed1d6cdecfa0ef6c0263a6656262551cdf79b08b"
+      "bytes": 17531,
+      "sha256": "0cf2a8ac5aa9e0ee4bcb24aff1de227f5544a299e510fab1baec269751fa1c41"
     },
     {
       "path": "LICENSE",
@@ -23,18 +23,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 19094,
-      "sha256": "2816b42fbb14d8fd69403b13254fafb4e7f7bd403d6a9fabe8ba64dbf3f25ebb"
+      "bytes": 19402,
+      "sha256": "5786994f61169b2529d4425edba0d962427825a1d5dd5d65fc452bb0a498d4d4"
     },
     {
       "path": "RELEASE_CHECKLIST.md",
-      "bytes": 3010,
-      "sha256": "97578873e94a7bda99e4a1ab48394f4adfc004565be9fd6fee894ec2785edc32"
+      "bytes": 2895,
+      "sha256": "9fd3be6b4d10c85cee0e980e220c4c99da8314a63d2b1d5da94cd79f26985cf5"
     },
     {
       "path": "SOURCE_MAP.md",
-      "bytes": 8532,
-      "sha256": "a303424dda8cd6cceb98b6e543f61b16165e0d2a3455187eaeaf0cf1e8137420"
+      "bytes": 9550,
+      "sha256": "60d59b7c2001f780ac4c44f8de5eea7061618811ad2acac71df9e23c8a732591"
     },
     {
       "path": "__init__.py",
@@ -128,8 +128,8 @@
     },
     {
       "path": "docs/TESTING.md",
-      "bytes": 11129,
-      "sha256": "c8fcb75442e24abb1c36293d72aa1e856c45a660d7e1d399f982532825ab667c"
+      "bytes": 12995,
+      "sha256": "79198bef9e9d905c9f2fe0d6566641ab8b1b58def492f181793c43eb7ef3834c"
     },
     {
       "path": "docs/THIRD-PARTY.md",
@@ -168,8 +168,8 @@
     },
     {
       "path": "h3_adapter/engine.py",
-      "bytes": 16463,
-      "sha256": "58d53f4172a6d47d608de072540b955207bc3fd45f116cdf40458384d9fec117"
+      "bytes": 16569,
+      "sha256": "d06f8bf47fa3bdaccf3e75422a1dd232ffb7e34eadb1de2573ded3170011f94a"
     },
     {
       "path": "h3_adapter/ledger.py",
@@ -183,8 +183,8 @@
     },
     {
       "path": "h3_adapter/routes.py",
-      "bytes": 4746,
-      "sha256": "e9f0d11be44d8d5796abb147abc8289334e13aba40522cac355d415a5e5186f0"
+      "bytes": 4964,
+      "sha256": "b9b767c7fe2f866794313b44d4351f19a5869d77f637cbe6a140a95892578aa5"
     },
     {
       "path": "licenses/httpx-0-LICENSE.md",
@@ -218,8 +218,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "bytes": 5064,
-      "sha256": "1ed1cc085e21904295f733e21eb29cd891faaedffcb94e5fe9381eec5a737cc2"
+      "bytes": 5135,
+      "sha256": "2dbb4380a33130f5ce6a2c2fa42082b90bb84c68df9f176cb7bea9e8a235a50a"
     },
     {
       "path": "scripts/independent_http_smoke.py",
@@ -245,6 +245,16 @@
       "path": "tests/test_config.py",
       "bytes": 2378,
       "sha256": "ec51cd632a0493120d73d1d778ea8c00b51de3e167d41002edd5f07594fa250f"
+    },
+    {
+      "path": "tests/test_development_frontend.mjs",
+      "bytes": 3730,
+      "sha256": "20ef2dc3e8056074f7952a3cafaf7d3ccc8d13b55d3ab6b6aed9ea437d0ac10c"
+    },
+    {
+      "path": "tests/test_development_upload.py",
+      "bytes": 1558,
+      "sha256": "3426b5d443afc99d9327dc23dba4e481492e6b03d2aa4356c5d920fc5c51b361"
     },
     {
       "path": "tests/test_engine.py",
@@ -393,8 +403,8 @@
     },
     {
       "path": "web/h3_adapter.js",
-      "bytes": 19595,
-      "sha256": "547749579b84440d67290f88548eb1a35fc2cd92c1276daa378ada5c308a03c4"
+      "bytes": 21026,
+      "sha256": "5b29934ee18c49cefd71ee6fbfb42e9acee32a61384d7e9a862c8dbe97b80804"
     }
   ],
   "privacy": "Exact release file allowlist; active provider settings replaced by disabled example",
