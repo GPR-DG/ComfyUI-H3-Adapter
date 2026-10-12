@@ -1,3 +1,5 @@
+> 当前版本 0.1.7（2026-10-13）的独立结论和实际测试见 [AUDIT-017](AUDIT-017.md)。下文保留历史记录，其中旧版本“未修复”说明不代表本版；GitHub/RH 状态以实际交付报告为准。
+
 # API + A2 BackgroundBridge 集成验证（0.1.6）
 
 日期 2026-10-12；原 GitHub main：`0f433e9adbb37b36d0ade27c2ae5e42196a42e36`。原仓库完整 Git bundle 和 source ZIP 在提交前保存，备份 SHA256 在本次交付 backup-record.json。只在任务工作目录中的本仓库 clone 上修改。

@@ -109,6 +109,7 @@ class FinalRecoveryGenerationTests(unittest.TestCase):
         fixture.setUp()
         self.addCleanup(fixture.doCleanups)
         cfg=fixture.store.load()
+        cfg['providers'][0]['account_id']='declared-same-account'
         fixture.remove()
         fixture.store.save(cfg)
         fixture.store.save_key('slot',FA)

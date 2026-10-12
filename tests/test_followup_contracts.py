@@ -96,6 +96,8 @@ class FollowupContracts(unittest.TestCase):
     def test_new_key_and_old_paid_task_remain_isolated_after_recreation(self):
         self.setup_merchants(); self.store.save_key('slot', FB); new = self.edit(1)
         self.assertEqual(new['report']['status'], 'awaiting_result'); self.peer.complete = True
+        old = self.edit(0); self.assertEqual(old['report']['error'], 'credential_changed_no_resubmit')
+        self.store.save_key('slot', FA)
         old = self.edit(0); self.assertEqual(old['report']['status'], 'success')
         old_gets = [c for c in self.peer.calls if c['method'] == 'GET' and c['path'].startswith('/old/')]
         self.assertTrue(old_gets); self.assertTrue(all(c['key'] == 'Bearer ' + FA for c in old_gets))

@@ -17,6 +17,8 @@ docs/RH-INTEGRATED-INSTALL.md
 docs/INTEGRATED-WORKFLOW-NODES.json
 docs/INTEGRATION-VALIDATION.md
 tests/test_integrated_bridge.py
+tests/test_independent_017.py
+docs/AUDIT-017.md
 .gitignore
 LICENSE
 README.md

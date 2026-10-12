@@ -44,6 +44,15 @@ class Journal:
             row = db.execute('SELECT * FROM requests WHERE request_id=?', (request_id,)).fetchone()
         return dict(row) if row else None
 
+    def has_legacy_submissions(self):
+        # An old Bridge prompt contained a configuration digest. A new natural
+        # prompt cannot prove it differs from an already paid legacy operation.
+        with self.connection() as db:
+            for row in db.execute("SELECT snapshot FROM requests WHERE state!='ready' AND snapshot IS NOT NULL"):
+                if json.loads(row['snapshot']).get('identity_version') != 2:
+                    return True
+        return False
+
     def begin(self, request_id, fingerprint):
         with self.connection() as db:
             db.execute('INSERT OR IGNORE INTO requests(request_id,fingerprint,state,updated) VALUES(?,?,?,?)',

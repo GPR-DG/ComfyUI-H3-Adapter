@@ -83,7 +83,19 @@ class H3ImageEdit:
             result = {'images': [], 'report': {'status': 'failed', 'error': 'invalid_node_input_or_server_configuration', 'provider': None, 'model': None}}
         report = json.dumps(result['report'], ensure_ascii=False)
         info = json.dumps({name: result['report'].get(name) for name in ('provider', 'model', 'status', 'elapsed_ms')}, ensure_ascii=False)
-        return {'ui': {'report': [report]}, 'result': (image_tensor(result['images'], image.shape), info, report)}
+        if result['report'].get('status') != 'success' or not result['images']:
+            try:
+                from comfy_execution.graph import ExecutionBlocker
+            except ModuleNotFoundError as error:
+                if error.name not in ('comfy_execution', 'comfy_execution.graph'):
+                    raise
+                # Standalone library callers retain the explicit empty-image contract.
+                output = image_tensor([], image.shape)
+            else:
+                output = ExecutionBlocker('H3 API: ' + result['report'].get('status', 'failed') + '/' + str(result['report'].get('error')))
+        else:
+            output = image_tensor(result['images'], image.shape)
+        return {'ui': {'report': [report]}, 'result': (output, info, report)}
 
 
 NODE_CLASS_MAPPINGS = {'H3ImageEdit': H3ImageEdit}

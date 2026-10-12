@@ -1,6 +1,6 @@
 # RH 技术人员安装说明：API + A2 BackgroundBridge 单仓库
 
-本仓库版本 0.1.6 同时提供 `H3ImageEdit` 和七个 `H3A2*` Bridge 节点。API 与 Bridge 只安装一个目录 `ComfyUI/custom_nodes/ComfyUI-H3-Adapter`，不再单独安装 `ComfyUI-H3-A2-BackgroundBridge`。现有旧 Bridge 安装应由管理员移出 custom_nodes 后重启，避免同名节点覆盖；不要同时保留两个副本。
+本仓库版本 0.1.7 同时提供 `H3ImageEdit` 和七个 `H3A2*` Bridge 节点。API 与 Bridge 只安装一个目录 `ComfyUI/custom_nodes/ComfyUI-H3-Adapter`，不再单独安装 `ComfyUI-H3-A2-BackgroundBridge`。现有旧 Bridge 安装应由管理员移出 custom_nodes 后重启，避免同名节点覆盖；不要同时保留两个副本。
 
 ## 1. 安装位置和依赖
 
@@ -75,8 +75,18 @@ Key 只保存在服务器 `secrets.private.json` 或供应商指定的环境变�
 
 `verify_comfyui.py` 使用真实 ComfyUI loader，核对八节点、管理路由和 Bridge 六文件哈希，执行有/无 MASK 的本机 Mock、账本重放、宿主 Save/Preview。`test_integrated_bridge.py` 还覆盖源码篡改拒绝、配置快照/Key 变化、宽高比阻断和图数量。开发测试日志必须保存在私有 scratch，不能提交到 GitHub。
 
-本次开发者还在隔离宿主运行 10 项原二次取证 Bridge 回归与 17 个真实 Comfy 调度场景，使用只读既有 Core；Qwen/Z 使用明确标记的 CPU 替身，H3 末端使用输入边界观察器。没有调用收费供应商，没有实际模型生成、完整 H3 MP4 或 RH 执行证据。背景 READY 表示流水线完成，不代表去人物或洗图质量已认证。API 宽高比不符会报错并阻断下游；只有同宽高比的分辨率变化允许缩放，禁止拉伸裁剪替代。
+本次开发者还在隔离宿主运行 11 项真实 Core/Bridge 回归与 22 个真实 Comfy 调度场景（6 正常成功、16 预期失败/阻断），使用只读既有 Core；Qwen/Z 使用明确标记的 CPU 替身，H3 末端使用输入边界观察器。没有调用收费供应商，没有实际模型生成、完整 H3 MP4 或 RH 执行证据。背景 READY 表示流水线完成，不代表去人物或洗图质量已认证。API 宽高比不符会报错并阻断下游；只有同宽高比的分辨率变化允许缩放，禁止拉伸裁剪替代。
 
-原适配器的已知限制继续存在：HTTPX 在响应体大小限制之前解压；直接把失败返回的零张 IMAGE 接到标准 Save/Preview 仍可能 IndexError。融合图经 APIGuard 阻断失败输出，本次不声称修复所有独立 API 使用方式。
+0.1.7 已使用受限原始压缩流与 ExecutionBlocker 修复上述本地路径。需要支持 comfy_execution.graph.ExecutionBlocker 的 ComfyUI；无该宿主 API 的库调用保留空 IMAGE 合同。队列完成可能仍显示 success，应验收 API status_report 和真实图片输出。
 
 RH 最终应另行记录 commit SHA、八节点 object_info、两个按钮/管理路由、Core 与模型依赖、持久账本重启重放，以及针对实际供应商协议/网络的结果。没有这些平台现场记录，验收状态保持 **RH 未验证**。
+
+## 5. 0.1.7 账号与升级部署合同
+
+每个租户使用独立 OS 进程/权限、H3_ADAPTER_CONFIG（及同级 Key 文件）、H3_ADAPTER_RUNTIME 与管理 Token；仅分开网页会话不能隔离服务器全局 STORE。固定持久目录必须在重启后保持，不能清账本来恢复任务。出口防火墙/平台代理须限制供应商 HTTPS 目的地，配置接口是管理员权限接口，插件不验证 HTTPS 目标属于公网。
+
+provider.account_id 可在非秘密 JSON 中设置为真实同账号的稳定标识（非空、最多128字符）；须在受理原任务前配置，同账号 Key 轮换保持该值。该值是管理员声明，不是平台账号认证。未证明账号则缓存/GET 阻断；恢复原 Key 后仍用原 nonce 恢复。不同账号不用相同 account_id，使用独立目录和进程。
+
+保留旧账本升级时，旧 Bridge Prompt 身份变化可能导致新请求 ID。0.1.7 默认对含旧提交快照的账本阻断新 ID，错误 legacy_journal_new_request_requires_review。先用旧版本记录核对已付费任务/状态；确认确实允许新任务后由管理员设置 H3_ADAPTER_ALLOW_LEGACY_NEW_REQUESTS=1。该开关不关闭已有请求防重、凭据授权或源码校验；不要删除旧账本、伪造快照或自动重发 uncertain 请求。没有凭据指纹的历史记录需人工核对。
+
+详细独立判定与测试替身范围见 [AUDIT-017.md](AUDIT-017.md)。

@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import time
 import uuid
 from pathlib import Path
@@ -75,7 +76,15 @@ class Engine:
             report['request_id'] = request_id
             report['currency'] = cfg.get('currency', 'USD')
             deadline = started + min(timeout_seconds, cfg.get('timeout_seconds', timeout_seconds))
+            existing = self.journal.get(request_id)
+            if existing is None and self.journal.has_legacy_submissions() and os.environ.get('H3_ADAPTER_ALLOW_LEGACY_NEW_REQUESTS') != '1':
+                return finish('blocked', 'legacy_journal_new_request_requires_review')
             row = self.journal.begin(request_id, request_id)
+            if row['state'] != 'ready':
+                try:
+                    self.store.authorize_snapshot(json.loads(row['snapshot']))
+                except ConfigConflict:
+                    return finish('awaiting_result' if row['state'] in ('accepted', 'result_ready') else 'blocked', 'credential_changed_no_resubmit')
             if row['state'] != 'ready' and row.get('currency') is not None:
                 report['currency'] = row['currency']
             old_report = json.loads(row['report_json'])
@@ -142,7 +151,7 @@ class Engine:
                 if any(k in effective for k in ('model', 'prompt', 'image', 'image[]', 'mask', 'stream')):
                     report['attempts'].append({'provider': pid, 'status': 'skipped', 'error': 'reserved_parameter', 'elapsed_ms': 0})
                     continue
-                snapshot = {'provider': p, 'model': m, 'effective_params': effective,
+                snapshot = {'identity_version': 2, 'provider': p, 'model': m, 'effective_params': effective,
                             'credential_fingerprint': self.store.credential_fingerprint(key),
                             'credential_generation': getattr(cfg, 'credential_generations', {}).get(pid, 0)}
                 self.journal.reserve(request_id, pid, m['id'], snapshot, cost or 0, cfg.get('currency', 'USD'), cfg.get('max_total_cost'))

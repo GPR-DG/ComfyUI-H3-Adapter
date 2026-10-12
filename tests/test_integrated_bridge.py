@@ -83,7 +83,7 @@ class IntegratedBridgeTests(unittest.TestCase):
                 store.save_key(config['providers'][0]['id'], 'SYNTHETIC-INTEGRATION-B')
                 rotated = run()
                 self.assertNotEqual(z_changed[0], rotated[0])
-                self.assertNotEqual(z_changed[1], rotated[1])
+                self.assertEqual(z_changed[1:], rotated[1:])
                 self.assertNotIn('SYNTHETIC-INTEGRATION', repr(rotated))
                 credential = store.credential
                 def race(provider, **kwargs):
@@ -108,6 +108,12 @@ class IntegratedBridgeTests(unittest.TestCase):
         for status in ('failed', 'uncertain', 'awaiting_result'):
             with self.assertRaisesRegex(RuntimeError, 'unavailable'):
                 guard.run(task, view, torch.zeros((0, 32, 18, 3)), json.dumps({'status': status}))
+        # Near ratios and inconsistent batches must not be coerced into a scene.
+        for invalid in (torch.zeros((1, 320, 181, 3)), torch.zeros((2, 32, 18, 3)),
+                        torch.empty((1, 0, 18, 3)), torch.full((1, 32, 18, 3), float('nan'))):
+            with self.assertRaises((ValueError, RuntimeError)):
+                guard.run(task, view, invalid, '{"status":"success"}')
+            self.assertNotIn(view.view_id, self.bridge.state(task)['api'])
         resized = guard.run(task, view, torch.zeros((1, 64, 36, 3)), '{"status":"success"}')[0]
         self.assertEqual(tuple(resized.shape), (1, 32, 18, 3))
 

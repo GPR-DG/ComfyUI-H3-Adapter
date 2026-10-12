@@ -69,17 +69,26 @@ class H3A2Recipe:
     def IS_CHANGED(cls,**kwargs):return float('nan')
     def run(self,denoise,removal_prompt,api_node_id,z_node_id,base_nonce,prompt):
         ad=adapter();store=ad.STORE;cfg=store.load()
-        # Credentials stay server-side. Only a one-way digest enters request identity.
-        accounts=[]
-        for provider in cfg['providers']:
-            if not provider.get('enabled',True):continue
-            key=store.credential(provider,expected_revision=cfg.revision)
-            accounts.append([provider['id'],store.credential_fingerprint(key) if key else '',cfg.credential_generations.get(provider['id'],0)])
         spec=prompt[str(api_node_id)];api_inputs={k:v for k,v in spec['inputs'].items() if k not in {'image','mask','prompt','request_nonce'}}
         if any(isinstance(v,list) and len(v)==2 for v in api_inputs.values()):
             raise ValueError('Recipe must inspect literal API settings; keep provider/model/parameters widgets on H3ImageEdit')
-        api_revision=digest({'settings':api_inputs,'server_config_revision':cfg.revision,'accounts':accounts,'prompt':removal_prompt,'base_nonce':base_nonce})
-        api_prompt=removal_prompt+'\nProcessing configuration SHA256: '+api_revision+' (metadata only; never render text).'
+        selected=api_inputs.get('provider','auto')
+        pid=cfg['primary'] if selected=='auto' else selected
+        provider=next((p for p in cfg['providers'] if p['id']==pid),None)
+        key=store.credential(provider,expected_revision=cfg.revision) if provider else ''
+        # The primary request contract excludes unused backups, keys and budget controls.
+        # A successful backup is still authorized against its own saved credential by Engine.
+        contract={k:provider.get(k) for k in ('id','base_url','protocol','edit_path','request','upload','async','result','auth','account_id')} if provider else {'id':pid}
+        model=provider.get('models',{}).get(api_inputs.get('model_alias','background-edit')) if provider else None
+        contract['model']={k:model.get(k) for k in ('id','defaults','mask_encoding')} if model else None
+        settings={k:v for k,v in api_inputs.items() if k not in {'timeout_seconds','max_cost','auto_failover'}}
+        if 'parameters' in settings:
+            settings['parameters']=json.loads(settings['parameters'])
+        request_revision=digest({'settings':settings,'contract':contract,'base_nonce':base_nonce})
+        account=[store.credential_fingerprint(key) if key else '',cfg.credential_generations.get(pid,0)]
+        api_revision=digest({'request':request_revision,'account':account,'prompt':removal_prompt})
+        # Identity travels through the INT connection, never through the editing instruction.
+        api_prompt=removal_prompt
         seen=set()
         def snapshot(nid):
             nid=str(nid)
@@ -110,7 +119,7 @@ class H3A2Recipe:
             return {'class':spec['class_type'],'inputs':inputs,'implementation':implementation,'model_files':models}
         z=snapshot(z_node_id)
         revision=digest({'bridge_version':1,'bridge_source':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'api':api_revision,'z':z,'denoise':float(denoise)})
-        return revision,api_prompt,int(base_nonce)
+        return revision,api_prompt,int(request_revision,16)
 
 class H3A2BackgroundResolve:
     @classmethod
@@ -217,8 +226,13 @@ class H3A2BackgroundFinish:
         image(api_background,'API prerequisite',view.candidate.image.shape)
         return ['clean_background'] if clean_background is None else []
     def run(self,task,view,clean_background=None,wash_token='',api_background=None):
+        if view.task_id!=task.task_id:raise ValueError('Cross-task finish')
         s=state(task);c=core();current=task.cache.get(view.view_id);hit=current.state=='READY'
+        api=s['api'].get(view.view_id)
+        if api is None:raise RuntimeError('Completed pipeline API evidence missing')
+        image(api,'recorded API evidence',view.candidate.image.shape)
         if not hit:
+            if current.state!='PENDING':raise RuntimeError('Invalid background state')
             image(api_background,'API prerequisite',view.candidate.image.shape)
             result=image(clean_background,'Z-Image decoded result',view.candidate.image.shape)
             if not wash_token or s['tokens'].get(view.view_id)!=wash_token:raise ValueError('Unowned result')

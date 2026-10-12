@@ -1,4 +1,4 @@
-"""Inline results already persisted must recover without borrowing any credential."""
+"""Persisted results remain private; restore the original account before consuming."""
 import base64
 import tempfile
 import unittest
@@ -15,8 +15,8 @@ from test_config import config
 class InlineRecoveryTests(unittest.TestCase):
     def test_anonymous_url_recovers_after_identity_change_but_authenticated_url_stays_guarded(self):
         work = Path(__file__).resolve().parents[2] / 'work' / 'tmp'
-        for download_auth, host, allowed in ((False, 'api.example.invalid', True),
-                                             (True, 'cdn.example.invalid', True),
+        for download_auth, host, allowed in ((False, 'api.example.invalid', False),
+                                             (True, 'cdn.example.invalid', False),
                                              (True, 'api.example.invalid', False)):
             with self.subTest(download_auth=download_auth, host=host), tempfile.TemporaryDirectory(dir=work) as folder:
                 store = ConfigStore(Path(folder) / 'providers.json')
@@ -53,6 +53,11 @@ class InlineRecoveryTests(unittest.TestCase):
                     self.assertEqual(recovered['report']['error'], 'credential_changed_no_resubmit')
                     self.assertEqual(len(calls), 1)
                     self.assertEqual(engine.journal.get(first['report']['request_id'])['state'], 'result_ready')
+                # Download authentication does not confer account ownership.
+                store.save_key('primary', 'synthetic-original-merchant')
+                restored = engine.edit([PNG_BYTES], prompt='free persisted URL recovery', request_nonce=18)
+                self.assertEqual(restored['report']['status'], 'success')
+                self.assertEqual(restored['images'], [PNG_BYTES])
                 self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 1)
                 self.assertEqual(engine.journal.get(first['report']['request_id'])['reserved_cost'], 0.1)
 
@@ -80,6 +85,12 @@ class InlineRecoveryTests(unittest.TestCase):
             store.save(cfg)
             store.save_key('primary', 'synthetic-replacement-merchant')
             engine = Engine(store, runtime, lambda p, k: Protocol(p, k, httpx.MockTransport(handler)))
+            recovered = engine.edit([PNG_BYTES], prompt='free persisted inline recovery', request_nonce=17)
+            self.assertEqual(recovered['report']['status'], 'awaiting_result')
+            self.assertEqual(recovered['report']['error'], 'credential_changed_no_resubmit')
+            self.assertEqual(recovered['images'], [])
+            self.assertEqual(calls, [('POST', 'api.example.invalid')])
+            store.save_key('primary', 'synthetic-original-merchant')
             recovered = engine.edit([PNG_BYTES], prompt='free persisted inline recovery', request_nonce=17)
             self.assertEqual(recovered['report']['status'], 'success')
             self.assertEqual(recovered['images'], [PNG_BYTES])

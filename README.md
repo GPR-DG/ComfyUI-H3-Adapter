@@ -1,21 +1,10 @@
 # H3 API + A2 BackgroundBridge（单仓库集成）
 
-**当前集成候选 0.1.6，2026-10-12。** 原有 API、主备供应商、Base URL、Key、模型选择、请求账本及两个手动配置按钮完整保留。本仓库根包同时注册 H3ImageEdit 和全部七个 Bridge 节点。RH 技术人员从此仓库安装 API/Bridge 一个插件目录即可；既有 H3 Core、原工作流依赖与模型仍须安装。详见 [RH 单仓库安装说明](docs/RH-INTEGRATED-INSTALL.md)、[本次集成验证](docs/INTEGRATION-VALIDATION.md) 和 [121 节点 / 251 连线工作流](workflows/H3_A2_API_ZImage_BackgroundCache_INTEGRATED.json)。
+**当前版本 0.1.7，2026-10-13。** 同一插件目录注册 H3ImageEdit 与全部七个 H3A2 Bridge 节点，保留 API Key、Base URL、模型、主备、请求账本及 **H3 供应商 / 密钥**、**H3 搜索 / 选择模型** 两个入口。既有 H3 Core、Qwen/Z-Image 等依赖仍须安装。见 [RH 安装说明](docs/RH-INTEGRATED-INSTALL.md)、[两轮独立取证与测试](docs/AUDIT-017.md) 和 [121 节点 / 251 连线示例](workflows/H3_A2_API_ZImage_BackgroundCache_INTEGRATED.json)。
 
-下文 0.1.5 测试数字是保留的历史记录。本次集成已重新测试；源码版本校验保留，六个源文件固定 LF 并按实际当前适配器重新生成哈希。Bridge Recipe 使用当前配置快照接口，API 输出宽高比不符仍拒绝。RH 云端、真实供应商与真实模型尚未验收，仍为开发测试候选。
+本版修复未使用备用配置造成重复 POST、共享账本结果授权、未证明账号的 Key 恢复、压缩响应提前解压、独立标准图像消费者失败输出，以及 Finish 先写 READY 后检查证据。Bridge Prompt 仅保留编辑原文；请求身份、凭据代次、账本和六源码 SHA256 校验继续启用。
 
----
-
-# H3 通用外部图像编辑 API 适配器（阶段 1）
-
-**版本 0.1.5：开发测试候选，更新日期 2026-10-12。可以用于源码开发与免费 Mock 测试；稳定 Release：NO。** 当前结果见 [FINAL_AUDIT_REPORT.md](FINAL_AUDIT_REPORT.md)，调用关系见 [SOURCE_MAP.md](SOURCE_MAP.md)。本次只增量修复管理令牌错误处理、密钥保存竞态、配置成功提示和结果临时文件清理，保留既有供应商身份/代际/冷却与参数切换保护。
-
-**两个已知缺陷仍未修复：** HTTP 响应先由 HTTPX 解压，再检查大小，不能限制此前的解压分配；失败、未知、等待等状态返回零张 IMAGE，标准 SaveImage/PreviewImage 会触发 IndexError。失败输出传播尚未闭合，不能作为生产稳定版使用。
-
-
-一个独立 ComfyUI 自定义节点 `H3ImageEdit`。标准 `IMAGE` / 可选 `MASK` → 外部编辑 API → `IMAGE`；配置式主供应商 + 3 个备用，可继续增加。只改服务器配置即可换地址、Key、模型映射和主备；工作流使用稳定的逻辑别名 `background-edit`。不修改 H3 / Z-Image / Background Core。
-
-**本轮验证：** Python 发现 174 项，执行 171 项，171 通过，0 失败/错误/跳过；按既有约束明确排除 3 项 Git 写入夹具。6 套 JS、27 类真实本地 TCP Mock 通过。实际 CPU PyTorch/ComfyUI 宿主导入、路由、有/无 MASK、成功缓存消费通过；失败输出到标准消费者的路径仍失败。真实供应商、收费、编辑质量和 RH 未验收。上述结果不表示生产验收通过。
+免费验证：Python 192/192、前端 6 套、真实 TCP Mock 27/27、实际 ComfyUI 八节点加载、真实 Core/Bridge 11/11、真实调度 22 场景符合预期。Qwen/Z 是 CPU 替身，H3 是输入边界观察；真实供应商、生成质量、正式视频及 RH 未验证。当前为经本地审核的插件候选，不能据此声称云端兼容或生产验收。
 
 ## 1. 安装到自己的 ComfyUI
 
@@ -75,11 +64,11 @@ Linux/macOS 在插件目录执行 `test -e config/providers.json || cp config/pr
 - SQLite 持久记录先占位再 POST；相同输入、prompt、逻辑模型、参数、固定 provider 和 `request_nonce` 形成稳定 ID。多进程争用也不能重复 POST；已完成结果从私密缓存返回。
 - 想明确创建**新的付费编辑**才增加 `request_nonce`。换配置/Key/同一逻辑别名对应的实际模型 ID 不会自动重复既有已受理或完成任务：同一请求仍返回旧模型快照/缓存。希望用新映射重做时须明确改 nonce；新的输入/prompt/逻辑别名/固定 provider 模式本身也形成不同请求。不要删除账本或自动清缓存来强制换模型。
 - `uncertain` 不能自动证明远端未扣费。先在商家后台查账/任务，确认后再由你决定新nonce。删除数据库、换runtime目录、换服务器或外部网关自身重试，都可能失去去重保护。本地请求ID不是商家保证的跨商幂等键。
-- 节点失败输出空 IMAGE batch 和状态报告，**不会把原图假装修复结果**；先看 status_report/on-node report，不要让下游把空输出当成成功。
+- 支持 ExecutionBlocker 的 ComfyUI 中失败 IMAGE 会阻断标准 Save/Preview；文本/UI 状态报告保留。队列结束不等于 API 成功，应检查 status_report。独立库调用保留空 IMAGE 合同，不生成伪造背景。
 
-0.1.3 新任务快照只增加私密凭据指纹，不存明文 Key、不改变请求 ID。恢复原任务需原凭据仍匹配，或当前地址/环境变量/鉴权身份与原快照一致（允许同站 Key 轮换）；若同 ID 已改成另一商家且 Key 变化，输出 `awaiting_result / credential_changed_no_resubmit`，保留 task_id 和费用预留，绝不带新商 Key 查询旧商或另开备用任务。恢复原配置/原 Key 后仍用相同 nonce 查询；不要用新 nonce 或删账本“修复”恢复。已落盘内联结果与不带 Key 的白名单下载无需凭据，仍可恢复；已完成缓存也无需 Key。
+0.1.7 在读取缓存与恢复前验证原凭据。相同 Key 可恢复；同账号换 Key 须在原任务受理前设置同一个非密钥 provider.account_id，且地址/鉴权身份与代次匹配。account_id 是管理员声明，不是账号验证服务；不同账号应使用独立配置/runtime/OS 进程。未证明账号时返回 credential_changed_no_resubmit，不查询旧任务、不自动 POST；恢复原 Key 后仍用原 nonce。内联结果、匿名下载与已完成缓存也须先通过账号授权。
 
-升级前的 0.1.2 未决账本没有凭据指纹：原身份不变仍可恢复；ID 被删除或跨商改址后不能证明旧 Key 身份，须恢复原供应商条目和 Key 再重跑。不会迁移/删除既有记录或自动重付。跨容器无共享 runtime 的幂等限制仍然存在。
+升级账本保留原记录/任务/费用。含旧身份快照的账本遇到新的请求 ID 时默认阻断 legacy_journal_new_request_requires_review，防止旧 Bridge Prompt 更换后重复付费。先核对旧请求，确实允许新请求时由管理员设置 H3_ADAPTER_ALLOW_LEGACY_NEW_REQUESTS=1；不清空账本，不关闭版本校验。详见独立审计与 RH 安装说明。没有凭据指纹的旧快照无法自动证明账号，需人工核对；无共享持久 runtime 的多容器不能保证跨容器去重。
 
 ## 5. 超时、MASK、费用
 

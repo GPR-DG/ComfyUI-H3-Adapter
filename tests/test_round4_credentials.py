@@ -80,10 +80,12 @@ class CredentialsTests(unittest.TestCase):
         self.assertTrue(self.calls[0]['url'].startswith('https://merchant-a.')); self.assertEqual(self.calls[0]['key'], 'Bearer ' + FA)
 
     def test_same_identity_key_rotation_is_allowed(self):
+        cfg=self.store.load(); cfg['providers'][0]['account_id']='declared-same-account'; self.store.save(cfg)
         self.accepted(); self.store.save_key('slot', FB); result = self.edit()
         self.assertEqual(result['report']['status'], 'success'); self.assertEqual(self.calls[0]['key'], 'Bearer ' + FB)
 
     def test_legacy_same_identity_rotation_is_allowed(self):
+        cfg=self.store.load(); cfg['providers'][0]['account_id']='declared-same-account'; self.store.save(cfg)
         self.accepted(legacy=True); self.store.save_key('slot', FB); self.assertEqual(self.edit()['report']['status'], 'success')
 
     def test_legacy_changed_identity_cannot_prove_same_key(self):

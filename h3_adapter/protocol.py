@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import binascii
 import json
+import zlib
 from time import monotonic
 from urllib.parse import quote, urlsplit
 
@@ -110,24 +111,65 @@ class Protocol:
             raise APIError("submit_deadline_exceeded", safe_to_failover=not submitted, uncertain=submitted)
         return remaining
 
+    def _bounded_content(self, response, deadline):
+        # Real network streams use iter_raw: HTTPX must not inflate before our cap.
+        if response.is_stream_consumed:
+            # Eager in-memory MockTransport responses have already been materialized.
+            if len(response.content) > self.max_response_bytes:
+                raise APIError('response_too_large', uncertain=True)
+            return response.content
+        encoding = response.headers.get('content-encoding', 'identity').strip().lower()
+        if encoding not in ('', 'identity', 'gzip', 'deflate'):
+            raise APIError('unsupported_response_encoding', uncertain=True)
+        compressed = encoding in ('gzip', 'deflate')
+        decoder = zlib.decompressobj(16 + zlib.MAX_WBITS) if encoding == 'gzip' else None
+        content, wire, prefix = bytearray(), 0, b''
+        for chunk in response.iter_raw():
+            if deadline is not None:
+                self._remaining(deadline, submitted=True)
+            wire += len(chunk)
+            if wire > self.max_response_bytes:
+                raise APIError('response_too_large', uncertain=True)
+            if not compressed:
+                content.extend(chunk)
+                continue
+            if encoding == 'deflate' and decoder is None:
+                prefix += chunk
+                if len(prefix) < 2:
+                    continue
+                zlib_header = prefix[0] & 15 == 8 and (prefix[0] * 256 + prefix[1]) % 31 == 0
+                decoder = zlib.decompressobj(zlib.MAX_WBITS if zlib_header else -zlib.MAX_WBITS)
+                chunk, prefix = prefix, b''
+            while chunk:
+                if decoder.eof:
+                    if encoding != 'gzip':
+                        raise APIError('invalid_response_compression', uncertain=True)
+                    decoder = zlib.decompressobj(16 + zlib.MAX_WBITS)
+                block = decoder.decompress(chunk, min(65536, self.max_response_bytes - len(content) + 1))
+                if len(content) + len(block) > self.max_response_bytes:
+                    raise APIError('response_too_large', uncertain=True)
+                content.extend(block)
+                chunk = decoder.unused_data if decoder.eof else decoder.unconsumed_tail
+                if deadline is not None:
+                    self._remaining(deadline, submitted=True)
+        if compressed and (decoder is None or not decoder.eof):
+            raise APIError('invalid_response_compression', uncertain=True)
+        return bytes(content)
+
     def _request(self, method, url, timeout, *, headers=None, submission=False, deadline=None, **kwargs):
         if deadline is not None:
             timeout = min(timeout, self._remaining(deadline))
         try:
-            with self.client.stream(method, url, headers=self._headers() if headers is None else headers, timeout=httpx.Timeout(timeout), **kwargs) as response:
+            request_headers = dict(self._headers() if headers is None else headers)
+            request_headers['Accept-Encoding'] = 'gzip, deflate'
+            with self.client.stream(method, url, headers=request_headers, timeout=httpx.Timeout(timeout), **kwargs) as response:
                 if not 200 <= response.status_code < 300:
                     safe = submission and 400 <= response.status_code < 500 and response.status_code in self.provider.get("safe_reject_statuses", [401, 403, 404])
                     raise APIError("http_rejected" if safe else "http_uncertain", safe_to_failover=safe, uncertain=not safe, provider_failure=safe)
                 if deadline is not None:
                     self._remaining(deadline, submitted=True)
-                content = bytearray()
-                for chunk in response.iter_bytes():
-                    if deadline is not None:
-                        self._remaining(deadline, submitted=True)
-                    if len(content) + len(chunk) > self.max_response_bytes:
-                        raise APIError("response_too_large", uncertain=True)
-                    content.extend(chunk)
-                return httpx.Response(response.status_code, content=bytes(content))
+                content = self._bounded_content(response, deadline)
+                return httpx.Response(response.status_code, content=content)
         except APIError:
             raise
         except (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout) as error:

@@ -2952,7 +2952,7 @@
         "Node name for S&R": "H3COrderedMergeFinish"
       },
       "widgets_values": [
-        24.0
+        24
       ]
     },
     {
@@ -7462,7 +7462,7 @@
         "{}",
         true,
         120,
-        1.0,
+        1,
         0
       ]
     },
@@ -11489,16 +11489,16 @@
     },
     "integrated_repository": {
       "repository": "https://github.com/GPR-DG/ComfyUI-H3-Adapter",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "plugin_directory": "ComfyUI-H3-Adapter",
       "bridge_module": "h3_background_bridge",
       "bridge_nodes_sha256": "d350241060daccd0e45478d98737b266b5814bee3bd015e7a6c56569fb625297",
       "adapter_required_sha256": {
-        "nodes.py": "af3f9bf18242edaf4dee533493229d82af25030e5beaea0254fd44f1f5ba1694",
-        "h3_adapter/engine.py": "fbf9fdd00ecb80887b65d274469f336cfd3e445d0b909a0a585236a62f0e4b69",
-        "h3_adapter/config.py": "364b04f648c9c0c70e86c4447623f19c5902c147d8efac5fe36e0a3dbcab21b4",
-        "h3_adapter/protocol.py": "61956b22c394870be8866ad0868144c76903f1a831b99bb498296887c38f0ce0",
-        "h3_adapter/ledger.py": "a839e8037a967560a0c72d32887f8b235b039faa7f8a59d1677fa29aa5ce7556",
+        "nodes.py": "13bcb7d6daf10809a456aa099d25073498019b5234fe438ce06908d0a9af0619",
+        "h3_adapter/engine.py": "f97d3dfc5e4517c59a79c76ec19cb05486ab40f838c7a7b601cfab409b08f18f",
+        "h3_adapter/config.py": "458109ea653de8a5bfe7cc090ba26199334dab639a62d1ca86c08390accc7bfe",
+        "h3_adapter/protocol.py": "71c785ca467412d263eea9b407a678730b4cabbfadee8ad0ff14a94bc4a88879",
+        "h3_adapter/ledger.py": "98327024ba33d7086c13e0b1d19f0be87d409d0f62bd2e2af83bf9448306bb5b",
         "h3_adapter/routes.py": "c57d4ff308ef1d4a2232d193122751c665c54dc92cb5c9c52b1e4e8bb9e15043"
       },
       "geometry_policy": "unchanged audited guard: reject different aspect ratio; same-aspect resize only",

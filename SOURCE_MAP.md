@@ -1,3 +1,5 @@
+> 当前版本 0.1.7（2026-10-13）的独立结论和实际测试见 [AUDIT-017](docs/AUDIT-017.md)。下文保留历史记录，其中旧版本“未修复”说明不代表本版；GitHub/RH 状态以实际交付报告为准。
+
 > 当前增量更新：2026-10-12，开发测试候选。原模块结构与数据流保持，以下补充优先于历史发布判断。
 >
 > routes.py：管理授权先校验 Origin/管理设置，再按 UTF-8 bytes 常量时间比较 token；非 ASCII 失败返回授权拒绝。config/key/models 仍经 ConfigStore/CAS，不公开 Key。

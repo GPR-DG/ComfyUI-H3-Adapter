@@ -112,6 +112,8 @@ def validate(config):
         for path in [p.get('edit_path')] + [obj.get('path') for obj in (p.get('discovery'), p.get('upload')) if isinstance(obj, dict)] + ([p['async'].get('poll_path')] if p.get('async') else []):
             if not isinstance(path, str) or not path.startswith('/') or path.startswith('//') or '..' in path.split('/') or urlsplit(path).scheme:
                 raise ConfigError('Endpoint paths must be explicit relative /paths, appended to Base URL')
+        if 'account_id' in p and (not isinstance(p['account_id'], str) or not p['account_id'].strip() or len(p['account_id']) > 128):
+            raise ConfigError('account_id must be a non-secret stable account label, at most 128 characters')
         env = p.get('key_env', '')
         if not isinstance(env, str) or (env and not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', env)):
             raise ConfigError('Invalid key environment-variable name')
@@ -246,7 +248,7 @@ class ConfigStore:
     def credential_identity(provider):
         auth = provider.get('auth') or {}
         return (provider['base_url'].rstrip('/'), provider.get('key_env', ''),
-                auth.get('header', 'Authorization').lower(), auth.get('prefix', 'Bearer '))
+                auth.get('header', 'Authorization').lower(), auth.get('prefix', 'Bearer '), provider.get('account_id'))
 
     @staticmethod
     def credential_fingerprint(key):
@@ -269,7 +271,9 @@ class ConfigStore:
                     entry = {}
                 generation = entry.get('generation', 0) if isinstance(entry, dict) else 0
                 same_generation = generation == (expected_generation if expected_generation is not None else 0)
-                if same and same_generation and isinstance(key, str) and key:
+                proven_key = bool(key and expected_fingerprint and self.credential_fingerprint(key) == expected_fingerprint)
+                declared_account = bool(provider.get('account_id') and same)
+                if same and same_generation and isinstance(key, str) and key and (proven_key or declared_account):
                     return key
                 retired = entry.get('retired', []) if isinstance(entry, dict) else []
                 if isinstance(entry, dict) and entry.get('generation') and not expected_fingerprint:
@@ -280,9 +284,35 @@ class ConfigStore:
             if not isinstance(key, str):
                 raise ConfigError('Invalid credential')
             matches = bool(key and expected_fingerprint and self.credential_fingerprint(key) == expected_fingerprint)
-            if (not recovery and not same) or (recovery and (not key or not ((same and same_generation) or matches))):
+            if (not recovery and not same) or (recovery and (not key or not ((same and same_generation and provider.get('account_id')) or matches))):
                 raise ConfigConflict('Provider credential identity changed; restore the original configuration and key')
             return key
+
+    def authorize_snapshot(self, snapshot):
+        """Authorize cache/recovery before reading private results; never submit here."""
+        provider = snapshot['provider']
+        with settings_lock(self.path.with_name('.settings.lock')):
+            config = self._load()
+            current = next((p for p in config['providers'] if p['id'] == provider['id']), None)
+            # A missing slot is not authorization: an unrelated configuration may
+            # share this journal. Only the original key (including retired keys)
+            # can consume a deleted slot's private result.
+            key = self.key(current if current is not None else provider)
+            expected = snapshot.get('credential_fingerprint')
+            if key and expected and self.credential_fingerprint(key) == expected:
+                return
+            if not key and expected:
+                try:
+                    entry = json.loads(self.secret_path.read_text(encoding='utf-8-sig')).get(provider['id'], {})
+                except (OSError, json.JSONDecodeError):
+                    entry = {}
+                if isinstance(entry, dict) and any(self.credential_fingerprint(old) == expected for old in entry.get('retired', [])):
+                    return
+            same_account = bool(current is not None and provider.get('account_id') and self.credential_identity(current) == self.credential_identity(provider))
+            generation = self.credential_generations(config).get(provider['id'], 0)
+            if key and same_account and generation == snapshot.get('credential_generation', 0):
+                return
+            raise ConfigConflict('Account changed; private cached results and old tasks require their original account')
 
     def save_key(self, provider_id, key, expected_revision=None):
         if not isinstance(key, str) or '\n' in key or '\r' in key or len(key) > 8192:
