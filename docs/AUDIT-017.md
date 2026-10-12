@@ -18,7 +18,8 @@
 1. CONFIRMED：H3A2BackgroundFinish.run 缺 Guard 证据时先 attach_clean 写 READY 再报错。真实 Core 复现得到 READY；修复先验证 task、API evidence、PENDING 和 claim，再 attach_clean。相同探针修复后保留 PENDING，合法 READY lazy 复用/A→B→A 继续通过。
 2. CONFIRMED：新增 authorize_snapshot 的初版在供应商条目缺失时直接 return，可被另一份配置/共享 runtime 利用。复审补充缺失供应商原凭据/退役原指纹校验；独立新 ConfigStore 用例阻断，原退役恢复回归保持通过。
 3. 已解决升级兼容性风险：旧 Recipe 摘要去除会改变付费请求身份。未迁移/删除旧账本；若未找到请求且账本含无 identity_version=2 的已提交快照，返回 legacy_journal_new_request_requires_review。已有同 ID 仍走原恢复。管理员必须先查旧任务/费用，再决定为确实新的任务设置 H3_ADAPTER_ALLOW_LEGACY_NEW_REQUESTS=1；该开关仅解除新请求迁移门槛，不关闭幂等/凭据/哈希检查。不建议清空账本。
-4. 拒绝无证据改动：近似比例容忍/自动裁切、失败造空白图、自动重新付费、把不同用户共享文件系统当成插件可提供的租户安全、对主备状态机进行无关重构。未证实问题不计为新 Bug。
+4. CONFIRMED（发布后独立 clone 复核）：未锚定的 CHANGELOG.md 属性也命中 docs/CHANGELOG.md，而历史 Git blob 为 CRLF，未编辑工作区也显示修改。仅将该规则锚定到 /CHANGELOG.md，保留历史文档字节；Python/六源码 pin/节点/工作流完全不变。重新生成 manifest/ZIP，再独立 clone 核对洁净状态。
+5. 拒绝无证据改动：近似比例容忍/自动裁切、失败造空白图、自动重新付费、把不同用户共享文件系统当成插件可提供的租户安全、对主备状态机进行无关重构。未证实问题不计为新 Bug。
 
 ## 实际免费验证与替身范围
 
