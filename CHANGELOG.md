@@ -1,3 +1,10 @@
+## 0.1.8 — H3K 源码补齐（2026-10-14）
+
+- 从本地真实独立 Bridge 纳入八个 H3K 类并由 Adapter 根注册，旧 API/A2/前端字节保留；Core 不改。
+- 复现后修复 LF/CRLF Core pin、geometry/IMAGE proof 别名、READY 文本覆盖和结束任务的 H3K 内存保留。
+- 调用内合并重复 Recipe 文件读取，READY 后释放 Z proof；保留 Kontext 6 步、Qwen、Z、两阶段预览和任务合同。
+- 交付边界、逐节点审核、优化对比、测试限制与 RH 安装说明：docs/H3K-DELIVERY.md。
+
 ## 0.1.7 — 独立取证与两轮复审（2026-10-13）
 
 修复备用配置重复付费身份、账号缓存/恢复授权、压缩流上限、ComfyUI 失败图像阻断与 Finish READY 提交顺序。技术摘要从模型 Prompt 移入 nonce；旧账本新请求默认迁移审查，完整防重及六源码校验保留。前端与正式工作流不改；集成示例仅更新版本/哈希元数据。测试与部署边界见 docs/AUDIT-017.md。

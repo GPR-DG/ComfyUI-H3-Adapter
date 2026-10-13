@@ -9,6 +9,13 @@ import zipfile
 
 RELEASE_FILES = frozenset("""
 .gitattributes
+h3_kontext_bridge/__init__.py
+h3_kontext_bridge/nodes.py
+h3_kontext_bridge/core-required-sha256.json
+h3_kontext_bridge/requirements.txt
+tests/test_h3k_delivery.py
+docs/H3K-DELIVERY.md
+docs/H3K-TARGET-PORTS.json
 h3_background_bridge/__init__.py
 h3_background_bridge/nodes.py
 h3_background_bridge/adapter-required-sha256.json

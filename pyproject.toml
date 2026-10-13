@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-h3-adapter"
-version = "0.1.7"
+version = "0.1.8"
 description = "Configuration-driven image-edit API adapter with acceptance-aware failover"
 requires-python = ">=3.10"
 license = {text = "MIT"}

@@ -91,3 +91,11 @@ ComfyUI IMAGE [B,H,W,C] + MASK [B,H,W]
 | test_final_frontend.mjs | 本轮 6 个切换参数回归；直接执行生产 JS |
 
 旧测试没有改动；本轮回归先在待修代码上失败，再验证最小补丁。
+
+## H3K 交付增量
+
+- `h3_kontext_bridge/nodes.py`：八类 H3K 原业务实现和已复現的最小修复。
+- `h3_kontext_bridge/core-required-sha256.json`：五个精确 Core 文件的 LF-normalized pin。
+- `__init__.py`：保留 API/A2 注册、WEB_DIRECTORY、原路由并追加 H3K。
+- `tests/test_h3k_delivery.py`：端口、immutable proof、失败阻断、cleanup 与 hash 回归。
+- `docs/H3K-DELIVERY.md`、`docs/H3K-TARGET-PORTS.json`：业务审计、部署边界及目标 JSON 端口合同。

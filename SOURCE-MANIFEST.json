@@ -1,10 +1,10 @@
 {
-  "version": "0.1.7",
+  "version": "0.1.8",
   "files": [
     {
       "path": ".gitattributes",
-      "bytes": 569,
-      "sha256": "2aa1a2691ef47c3cc8c4a28ba7f1f0c3dc3af116a9caaa4fae74e1e047f231a1"
+      "bytes": 752,
+      "sha256": "86fd5a365a20062d5389bce7d41e964959a6e19b537eadd24c1a3c48f2935192"
     },
     {
       "path": ".gitignore",
@@ -13,8 +13,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 3295,
-      "sha256": "274ff88ec54073ac090588c66d89a4abc342a43497c12b776e6f490b02088795"
+      "bytes": 3840,
+      "sha256": "f4c7623d58c3f61bf5f99af3d2e5cbb45d091ebaf2da4e1ebe64e1b1d2c2573e"
     },
     {
       "path": "FINAL_AUDIT_REPORT.md",
@@ -28,8 +28,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19126,
-      "sha256": "27fc1f3c68861fc2a7f49eea48ab5fcb1c888c0eae235dc0eaac4fa62d8fa91c"
+      "bytes": 19491,
+      "sha256": "50b09afd6c10b3e914c10f23bccba2f5726f11db5bb60b466dfbedb123664f0c"
     },
     {
       "path": "RELEASE_CHECKLIST.md",
@@ -38,13 +38,13 @@
     },
     {
       "path": "SOURCE_MAP.md",
-      "bytes": 9782,
-      "sha256": "da4b5260b747d5e927cf8da28d29e8cd46d45ecbc3d557c85f792af12a4dc2d0"
+      "bytes": 10203,
+      "sha256": "f0a5891d5f436a73f6d2f7f10c944810795338ec55e658714cf352103f3275e9"
     },
     {
       "path": "__init__.py",
-      "bytes": 996,
-      "sha256": "08e0a3ebb67a47c5e49f2e640df2619d8fbc1cda186ca77426f241f94b97fd73"
+      "bytes": 1406,
+      "sha256": "7a1c95d3d1446fb469a3bad5d6e64071421e36c0cb7aa22e8ecf5db4acbffcc3"
     },
     {
       "path": "config/protocol-variants.example.json",
@@ -115,6 +115,16 @@
       "path": "docs/GATEWAY-EVIDENCE.md",
       "bytes": 9624,
       "sha256": "245860e97aecb40a009f88d3d4df87fc274eec633523ae369ffe29c3c8d67454"
+    },
+    {
+      "path": "docs/H3K-DELIVERY.md",
+      "bytes": 7040,
+      "sha256": "4c7bd14d243be45bd55856fcec9fb23d6cf4a679fd785bb6951f3933918af765"
+    },
+    {
+      "path": "docs/H3K-TARGET-PORTS.json",
+      "bytes": 10666,
+      "sha256": "c284e2ab5e296aa267f126e33d7086e06e3c682f854cd75bf27a15d3fb2ac5be"
     },
     {
       "path": "docs/HANDOVER.md",
@@ -227,6 +237,26 @@
       "sha256": "b9a9aae36c55f3228225387f12af4151e912c4c343d56688cf558f38395806a6"
     },
     {
+      "path": "h3_kontext_bridge/__init__.py",
+      "bytes": 132,
+      "sha256": "4c0f96b0f0006df5a559d09d44b8d521a32d7992383223310b5ba2a3f88e3e42"
+    },
+    {
+      "path": "h3_kontext_bridge/core-required-sha256.json",
+      "bytes": 495,
+      "sha256": "c98ae5ce6b7125284d5fa507d56c1bee66c432d4b50a702a2fad0d8a27527674"
+    },
+    {
+      "path": "h3_kontext_bridge/nodes.py",
+      "bytes": 21217,
+      "sha256": "d435485cfb8c7e658b7ba444abe176e59160873a7ea0e3e8d52de61f02dc2d85"
+    },
+    {
+      "path": "h3_kontext_bridge/requirements.txt",
+      "bytes": 74,
+      "sha256": "625dbb293ff229c4506077c7834e9add5ce1db5874d75a23320c4a23a72ebd1d"
+    },
+    {
       "path": "licenses/httpx-0-LICENSE.md",
       "bytes": 1508,
       "sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d"
@@ -244,7 +274,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 353,
-      "sha256": "f095f9300cb0daa45428640cb127d21be4df5ccdec2119472668e740dda98492"
+      "sha256": "e6e83a28b82626b728b8499c0a92517f5c78b03d4da9a773d056be7f9e4eb901"
     },
     {
       "path": "requirements-dev.txt",
@@ -258,8 +288,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "bytes": 5364,
-      "sha256": "0f91e8da4fca1efb2a92051fe3b9204c334a7f9204c5885f8496f1d5f455e282"
+      "bytes": 5575,
+      "sha256": "82acb0ae98845c26a340562b9d5fcc40b665c5d396b6b6849a160c5979d45724"
     },
     {
       "path": "scripts/independent_http_smoke.py",
@@ -327,14 +357,19 @@
       "sha256": "3df49c7a39ea2082a34c1d3ab08bae5e999cd30e14fbd82ef7eba7cc072b479e"
     },
     {
+      "path": "tests/test_h3k_delivery.py",
+      "bytes": 12331,
+      "sha256": "46ac897be591575e4499b2331202df28b98e071564ecf6b6a4f870b40a954a02"
+    },
+    {
       "path": "tests/test_independent_017.py",
       "bytes": 8600,
       "sha256": "e61e2d4fa0d462ed9241b1ae5f94b09a81b21a1710476e0667b7fa761c998aeb"
     },
     {
       "path": "tests/test_integrated_bridge.py",
-      "bytes": 8624,
-      "sha256": "29e337c2f52ffe30118e0abd33cdfaa8758442be9c78dcab7a27df2957271370"
+      "bytes": 8842,
+      "sha256": "31ffd6fa6de23530b0343948a6220f218a90914701b17288b7d7bf5135d60edd"
     },
     {
       "path": "tests/test_ledger.py",

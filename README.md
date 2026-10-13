@@ -142,3 +142,7 @@ python -m pip install -r custom_nodes/ComfyUI-H3-Adapter/requirements.txt
 最小工作流：LoadImage 的 IMAGE → H3ImageEdit 的 image → PreviewImage 或 SaveImage。设置 `provider=auto`、`model_alias=background-edit`、`parameters={}`；如模型允许 size，可填 `{"size":"1024x1024"}`。有 Mask 时连接同尺寸 MASK。编辑完成后查看 `status_report` 中的真实 provider/model/status。更换供应商、模型或别名后检查并重新填写参数；已经完成的同输入/nonce 请求仍读旧结果，明确需要新一笔编辑时才改变 `request_nonce`。
 
 模型发现只提供模型 ID，不证明报价、尺寸或 Mask 能力。API 协议映射与配置例子见 `docs/PROTOCOLS.md` 和 `config/protocol-variants.example.json`；模型 ID、价格和能力需由维护者按正式文档确认。RH 接入前必须确认自定义节点安装、外连、秘密管理和持久化条件。
+
+## H3K 缺失节点交付（0.1.8）
+
+八类 H3K 已纳入 `h3_kontext_bridge` 并由根入口注册；不要同时安装旧独立 H3K 包。安装精确 Core feature commit，不改现有 H3 API 功能与 H3 底座。逐节点审核、复现修复、性能对比、真实 ComfyUI 免费执行器验证及未验证边界见 [H3K-DELIVERY](docs/H3K-DELIVERY.md)。

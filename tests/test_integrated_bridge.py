@@ -18,6 +18,11 @@ NAMES = {'H3ImageEdit', 'H3A2Recipe', 'H3A2BackgroundResolve',
          'H3A2PromptCapture', 'H3A2BackgroundFinish'}
 
 
+K_NAMES = {'H3KBackgroundResolve', 'H3KBackgroundWashClaim', 'H3KBackgroundFinish',
+          'H3KBackgroundSource', 'H3KStageGuard', 'H3KRecipe',
+          'H3KPromptCapture', 'H3KStagePreview'}
+
+
 class IntegratedBridgeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -31,8 +36,8 @@ class IntegratedBridgeTests(unittest.TestCase):
         cls.bridge = sys.modules[spec.name + '.h3_background_bridge.nodes']
 
     def test_single_package_registration_without_core(self):
-        self.assertEqual(set(self.plugin.NODE_CLASS_MAPPINGS), NAMES)
-        self.assertEqual(set(self.plugin.NODE_DISPLAY_NAME_MAPPINGS), NAMES)
+        self.assertEqual(set(self.plugin.NODE_CLASS_MAPPINGS), NAMES | K_NAMES)
+        self.assertEqual(set(self.plugin.NODE_DISPLAY_NAME_MAPPINGS), NAMES | K_NAMES)
         self.assertEqual(self.plugin.WEB_DIRECTORY, './web')
         js = (ROOT / 'web/h3_adapter.js').read_text(encoding='utf-8')
         for label in ('H3 供应商 / 密钥', 'H3 搜索 / 选择模型'):
